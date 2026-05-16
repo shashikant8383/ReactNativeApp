@@ -1,0 +1,16 @@
+export const solarColors = {
+  background: '#e9ebf1',
+  phoneBorder: '#1b1d22',
+  navy: '#0d1a2b',
+  navySoft: '#162338',
+  navyLine: '#29466d',
+  accent: '#ed8438',
+  accentDark: '#df7f35',
+  blue: '#4ea9ea',
+  surface: '#ffffff',
+  mutedSurface: '#f1f3f7',
+  text: '#152033',
+  textMuted: '#667085',
+  textSoft: '#9badc9',
+  success: '#50bf6f',
+};
