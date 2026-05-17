@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
 import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 
+import { GroupedBarChart } from './GroupedBarChart';
 import { KpiOption, metricRanges, MetricRange } from '../data/monitoring';
 import { useLiveEnergyData } from '../hooks/useLiveEnergyData';
 import { translations } from '../i18n/translations';
@@ -10,6 +10,8 @@ import { solarColors } from '../theme/colors';
 type FullScreenChartProps = {
   isVisible: boolean;
   selectedKpi: KpiOption;
+  activeRange: MetricRange;
+  onRangeChange: (range: MetricRange) => void;
   t: (typeof translations)['EN'];
   onClose: () => void;
 };
@@ -18,9 +20,17 @@ const screen = Dimensions.get('window');
 const chartWidth = Math.max(300, screen.width - 34);
 const chartHeight = Math.max(470, screen.height - 270);
 
-export function FullScreenChart({ isVisible, selectedKpi, t, onClose }: FullScreenChartProps) {
-  const [activeRange, setActiveRange] = useState<MetricRange>('Hour');
-  const energyChartData = useLiveEnergyData([t.plantMeasurement, t.digitalTwin]);
+export function FullScreenChart({
+  isVisible,
+  selectedKpi,
+  activeRange,
+  onRangeChange,
+  t,
+  onClose,
+}: FullScreenChartProps) {
+  const energyChartData = useLiveEnergyData(activeRange, [t.plantMeasurement, t.digitalTwin]);
+  const isLineChart = activeRange === 'Hour';
+  const maxValue = activeRange === 'Day' ? 12 : 140;
 
   if (!isVisible) {
     return null;
@@ -39,7 +49,7 @@ export function FullScreenChart({ isVisible, selectedKpi, t, onClose }: FullScre
         {metricRanges.map((range) => (
           <Pressable
             key={range}
-            onPress={() => setActiveRange(range)}
+            onPress={() => onRangeChange(range)}
             style={[styles.segment, activeRange === range && styles.segmentActive]}
           >
             <Text style={[styles.segmentText, activeRange === range && styles.segmentTextActive]}>
@@ -61,38 +71,52 @@ export function FullScreenChart({ isVisible, selectedKpi, t, onClose }: FullScre
       </View>
 
       <View style={styles.chartWrap}>
-        <LineChart
-          data={energyChartData}
-          width={chartWidth}
-          height={chartHeight}
-          yAxisSuffix=""
-          yAxisInterval={1}
-          chartConfig={{
-            backgroundGradientFrom: solarColors.navy,
-            backgroundGradientTo: solarColors.navy,
-            decimalPlaces: 1,
-            color: (opacity = 1) => 'rgba(148, 170, 205, ' + opacity + ')',
-            labelColor: (opacity = 1) => 'rgba(138, 160, 198, ' + opacity + ')',
-            fillShadowGradientFrom: '#7f8794',
-            fillShadowGradientFromOpacity: 0.32,
-            fillShadowGradientTo: '#7f8794',
-            fillShadowGradientToOpacity: 0.32,
-            propsForBackgroundLines: {
-              stroke: '#21324c',
-              strokeDasharray: '0',
-            },
-            propsForDots: {
-              r: '4',
-              strokeWidth: '2',
-              stroke: solarColors.navy,
-            },
-          }}
-          bezier
-          style={styles.chart}
-          withShadow={true}
-          withInnerLines={true}
-          withOuterLines={false}
-        />
+        {isLineChart ? (
+          <LineChart
+            data={energyChartData}
+            width={chartWidth}
+            height={chartHeight}
+            yAxisSuffix=""
+            yAxisInterval={1}
+            chartConfig={{
+              backgroundGradientFrom: solarColors.navy,
+              backgroundGradientTo: solarColors.navy,
+              decimalPlaces: 1,
+              color: (opacity = 1) => 'rgba(148, 170, 205, ' + opacity + ')',
+              labelColor: (opacity = 1) => 'rgba(138, 160, 198, ' + opacity + ')',
+              fillShadowGradientFrom: '#7f8794',
+              fillShadowGradientFromOpacity: 0.32,
+              fillShadowGradientTo: '#7f8794',
+              fillShadowGradientToOpacity: 0.32,
+              propsForBackgroundLines: {
+                stroke: '#21324c',
+                strokeDasharray: '0',
+              },
+              propsForDots: {
+                r: '4',
+                strokeWidth: '2',
+                stroke: solarColors.navy,
+              },
+            }}
+            bezier
+            fromZero
+            segments={4}
+            style={styles.chart}
+            withShadow={true}
+            withInnerLines={true}
+            withOuterLines={false}
+          />
+        ) : (
+          <GroupedBarChart
+            dark
+            labels={energyChartData.labels}
+            plant={energyChartData.plant}
+            twin={energyChartData.twin}
+            width={chartWidth}
+            height={chartHeight}
+            maxValue={maxValue}
+          />
+        )}
       </View>
 
       <Text style={styles.period}>14 Apr - 13 May 2026</Text>

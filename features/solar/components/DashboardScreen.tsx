@@ -11,7 +11,7 @@ import { PhoneFrame } from './PhoneFrame';
 import { PlantSummaryCard } from './PlantSummaryCard';
 import { ProfileMenu } from './ProfileMenu';
 import { SystemHealthCard } from './SystemHealthCard';
-import { KpiOption, LanguageCode } from '../data/monitoring';
+import { KpiOption, LanguageCode, MetricRange } from '../data/monitoring';
 import { translations } from '../i18n/translations';
 
 export function DashboardScreen() {
@@ -21,6 +21,7 @@ export function DashboardScreen() {
   const [isFullScreenChartOpen, setIsFullScreenChartOpen] = useState(false);
   const [selectedKpi, setSelectedKpi] = useState<KpiOption>('Specific Energy');
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>('EN');
+  const [activeRange, setActiveRange] = useState<MetricRange>('Hour');
   const t = translations[selectedLanguage];
 
   return (
@@ -35,8 +36,10 @@ export function DashboardScreen() {
           <PlantSummaryCard t={t} />
           <EnergyChartCard
             selectedKpi={selectedKpi}
+            activeRange={activeRange}
             onKpiPress={() => setIsKpiSheetOpen(true)}
             onFullScreenPress={() => setIsFullScreenChartOpen(true)}
+            onRangeChange={setActiveRange}
             t={t}
           />
           <KpiCards t={t} />
@@ -66,6 +69,8 @@ export function DashboardScreen() {
         <FullScreenChart
           isVisible={isFullScreenChartOpen}
           selectedKpi={selectedKpi}
+          activeRange={activeRange}
+          onRangeChange={setActiveRange}
           t={t}
           onClose={() => setIsFullScreenChartOpen(false)}
         />

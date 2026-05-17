@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
 import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 
+import { GroupedBarChart } from './GroupedBarChart';
 import { KpiOption, MetricRange, metricRanges } from '../data/monitoring';
 import { useLiveEnergyData } from '../hooks/useLiveEnergyData';
 import { translations } from '../i18n/translations';
@@ -11,14 +11,24 @@ const chartWidth = Math.min(Dimensions.get('window').width - 64, 330);
 
 type EnergyChartCardProps = {
   selectedKpi: KpiOption;
+  activeRange: MetricRange;
   onKpiPress: () => void;
   onFullScreenPress: () => void;
+  onRangeChange: (range: MetricRange) => void;
   t: (typeof translations)['EN'];
 };
 
-export function EnergyChartCard({ selectedKpi, onKpiPress, onFullScreenPress, t }: EnergyChartCardProps) {
-  const [activeRange, setActiveRange] = useState<MetricRange>('Day');
-  const energyChartData = useLiveEnergyData([t.plantMeasurement, t.digitalTwin]);
+export function EnergyChartCard({
+  selectedKpi,
+  activeRange,
+  onKpiPress,
+  onFullScreenPress,
+  onRangeChange,
+  t,
+}: EnergyChartCardProps) {
+  const energyChartData = useLiveEnergyData(activeRange, [t.plantMeasurement, t.digitalTwin]);
+  const isLineChart = activeRange === 'Hour';
+  const maxValue = activeRange === 'Day' ? 12 : 140;
 
   return (
     <View style={styles.card}>
@@ -32,7 +42,7 @@ export function EnergyChartCard({ selectedKpi, onKpiPress, onFullScreenPress, t 
         {metricRanges.map((range) => (
           <Pressable
             key={range}
-            onPress={() => setActiveRange(range)}
+            onPress={() => onRangeChange(range)}
             style={[styles.segment, activeRange === range && styles.segmentActive]}
           >
             <Text style={[styles.segmentText, activeRange === range && styles.segmentTextActive]}>
@@ -56,34 +66,53 @@ export function EnergyChartCard({ selectedKpi, onKpiPress, onFullScreenPress, t 
         </Pressable>
       </View>
 
-      <LineChart
-        data={energyChartData}
-        width={chartWidth}
-        height={190}
-        yAxisSuffix=""
-        yAxisInterval={1}
-        chartConfig={{
-          backgroundGradientFrom: solarColors.surface,
-          backgroundGradientTo: solarColors.surface,
-          decimalPlaces: 1,
-          color: (opacity = 1) => 'rgba(21, 32, 51, ' + opacity + ')',
-          labelColor: (opacity = 1) => 'rgba(102, 112, 133, ' + opacity + ')',
-          propsForBackgroundLines: {
-            stroke: '#eef1f5',
-            strokeDasharray: '0',
-          },
-          propsForDots: {
-            r: '2.5',
-            strokeWidth: '1',
-            stroke: solarColors.surface,
-          },
-        }}
-        bezier
-        style={styles.chart}
-        withShadow={false}
-        withInnerLines={true}
-        withOuterLines={false}
-      />
+      {isLineChart ? (
+        <LineChart
+          data={energyChartData}
+          width={chartWidth}
+          height={190}
+          yAxisSuffix=""
+          yAxisInterval={1}
+          chartConfig={{
+            backgroundGradientFrom: solarColors.surface,
+            backgroundGradientTo: solarColors.surface,
+            decimalPlaces: 1,
+            color: (opacity = 1) => 'rgba(21, 32, 51, ' + opacity + ')',
+            labelColor: (opacity = 1) => 'rgba(102, 112, 133, ' + opacity + ')',
+            fillShadowGradientFrom: '#7f8794',
+            fillShadowGradientFromOpacity: 0.18,
+            fillShadowGradientTo: '#7f8794',
+            fillShadowGradientToOpacity: 0.18,
+            propsForBackgroundLines: {
+              stroke: '#eef1f5',
+              strokeDasharray: '0',
+            },
+            propsForDots: {
+              r: '2.5',
+              strokeWidth: '1',
+              stroke: solarColors.surface,
+            },
+          }}
+          bezier
+          fromZero
+          segments={4}
+          style={styles.chart}
+          withShadow={true}
+          withInnerLines={true}
+          withOuterLines={false}
+        />
+      ) : (
+        <View style={styles.chart}>
+          <GroupedBarChart
+            labels={energyChartData.labels}
+            plant={energyChartData.plant}
+            twin={energyChartData.twin}
+            width={chartWidth}
+            height={190}
+            maxValue={maxValue}
+          />
+        </View>
+      )}
     </View>
   );
 }
