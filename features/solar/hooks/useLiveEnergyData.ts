@@ -35,7 +35,7 @@ export function useLiveEnergyData(legend = ['Plant measurement', 'Digital twin']
           strokeWidth: 2,
         },
       ],
-      legend,
+      //egend,
     }),
     [legend, plantData, twinData]
   );

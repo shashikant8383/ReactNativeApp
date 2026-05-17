@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 
-import { KpiOption, metricRanges, MetricRange } from '../data/monitoring';
+import { KpiOption, MetricRange, metricRanges } from '../data/monitoring';
 import { useLiveEnergyData } from '../hooks/useLiveEnergyData';
 import { translations } from '../i18n/translations';
 import { solarColors } from '../theme/colors';
