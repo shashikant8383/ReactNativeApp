@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { clearLoginSession } from '../auth/session';
 import { userProfile } from '../data/monitoring';
 import { translations } from '../i18n/translations';
 import { solarColors } from '../theme/colors';
@@ -16,6 +17,11 @@ const drawerWidth = Math.min(Dimensions.get('window').width * 0.74, 310);
 
 export function ProfileMenu({ isVisible, t, onClose }: ProfileMenuProps) {
   const translateX = useRef(new Animated.Value(drawerWidth)).current;
+
+  async function handleLogout() {
+    await clearLoginSession();
+    router.replace('/');
+  }
 
   useEffect(() => {
     if (!isVisible) {
@@ -61,7 +67,7 @@ export function ProfileMenu({ isVisible, t, onClose }: ProfileMenuProps) {
             </View>
             <Text style={styles.navText}>{t.changePassword}</Text>
           </Pressable>
-          <Pressable onPress={() => router.replace('/')} style={styles.navItem}>
+          <Pressable onPress={handleLogout} style={styles.navItem}>
             <View style={[styles.iconBox, styles.logoutIconBox]}>
               <Text style={[styles.navIcon, styles.logoutIcon]}>↩</Text>
             </View>

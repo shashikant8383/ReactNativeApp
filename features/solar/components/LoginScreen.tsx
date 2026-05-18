@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ImageBackground,
   KeyboardAvoidingView,
@@ -13,19 +13,49 @@ import {
 
 import { BrandLogo } from './BrandLogo';
 import { PhoneFrame } from './PhoneFrame';
+import { hasLoginSession, saveLoginSession } from '../auth/session';
 import { solarColors } from '../theme/colors';
 
 export function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
 
-  function handleLogin() {
+  useEffect(() => {
+    let isMounted = true;
+
+    async function restoreSession() {
+      try {
+        if (await hasLoginSession()) {
+          router.replace('/Dashboard');
+          return;
+        }
+      } finally {
+        if (isMounted) {
+          setIsCheckingSession(false);
+        }
+      }
+    }
+
+    restoreSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  async function handleLogin() {
     if (email.trim() !== '' && password.trim() !== '') {
-      router.push('/Dashboard');
+      await saveLoginSession();
+      router.replace('/Dashboard');
       return;
     }
 
     alert('Please enter username and password');
+  }
+
+  if (isCheckingSession) {
+    return <PhoneFrame variant="dark" />;
   }
 
   return (
