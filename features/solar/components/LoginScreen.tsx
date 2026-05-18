@@ -13,11 +13,15 @@ import {
 
 import { BrandLogo } from './BrandLogo';
 import { PhoneFrame } from './PhoneFrame';
+import { getUserFriendlyAuthError } from '../api/apiError';
 import { hasLoginSession, saveLoginSession } from '../auth/session';
+import { loginWithPassword } from '../services/authApi';
 import { solarColors } from '../theme/colors';
 
 export function LoginScreen() {
   const [email, setEmail] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [password, setPassword] = useState('');
   const [isCheckingSession, setIsCheckingSession] = useState(true);
 
@@ -45,13 +49,31 @@ export function LoginScreen() {
   }, []);
 
   async function handleLogin() {
-    if (email.trim() !== '' && password.trim() !== '') {
-      await saveLoginSession();
+    const trimmedEmail = email.trim();
+
+    if (trimmedEmail !== '' && password.trim() !== '') {
+      setErrorMessage('');
+      setIsLoggingIn(true);
+
+      try {
+        const response = await loginWithPassword({
+          email: trimmedEmail,
+          password,
+        });
+
+        await saveLoginSession(response);
+      } catch (error) {
+        setErrorMessage(getUserFriendlyAuthError(error));
+        setIsLoggingIn(false);
+        return;
+      }
+
+      setIsLoggingIn(false);
       router.replace('/Dashboard');
       return;
     }
 
-    alert('Please enter username and password');
+    setErrorMessage('Please enter username and password');
   }
 
   if (isCheckingSession) {
@@ -94,9 +116,11 @@ export function LoginScreen() {
             onChangeText={setPassword}
           />
 
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>LOG IN</Text>
+          <TouchableOpacity disabled={isLoggingIn} style={[styles.button, isLoggingIn && styles.buttonDisabled]} onPress={handleLogin}>
+            <Text style={styles.buttonText}>{isLoggingIn ? 'LOGGING IN...' : 'LOG IN'}</Text>
           </TouchableOpacity>
+
+          {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
           <TouchableOpacity>
             <Text style={styles.forgot}>Forgot password?</Text>
@@ -166,10 +190,20 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 4,
   },
+  buttonDisabled: {
+    opacity: 0.72,
+  },
   buttonText: {
     color: '#ffffff',
     fontSize: 15,
     fontWeight: '900',
+  },
+  errorText: {
+    color: '#ffb4a8',
+    fontSize: 13,
+    fontWeight: '700',
+    marginTop: 14,
+    textAlign: 'center',
   },
   forgot: {
     color: '#8697b5',

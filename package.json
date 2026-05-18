@@ -4,10 +4,22 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "start:dev": "APP_ENV=dev expo start",
+    "start:stage": "APP_ENV=stage expo start",
+    "start:prod": "APP_ENV=prod expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
+    "android:dev": "APP_ENV=dev expo run:android",
+    "android:stage": "APP_ENV=stage expo run:android",
+    "android:prod": "APP_ENV=prod expo run:android",
     "ios": "expo run:ios",
+    "ios:dev": "APP_ENV=dev expo run:ios",
+    "ios:stage": "APP_ENV=stage expo run:ios",
+    "ios:prod": "APP_ENV=prod expo run:ios",
     "web": "expo start --web",
+    "web:dev": "APP_ENV=dev expo start --web",
+    "web:stage": "APP_ENV=stage expo start --web",
+    "web:prod": "APP_ENV=prod expo start --web",
     "lint": "expo lint"
   },
   "dependencies": {
