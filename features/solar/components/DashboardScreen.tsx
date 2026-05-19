@@ -1,8 +1,12 @@
-import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import React, { useEffect, useState } from 'react';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 
+import { isInAppDebugConsoleEnabled } from '../config/env';
+import { KpiOption, LanguageCode, MetricRange } from '../data/monitoring';
+import { InAppDebugConsole } from '../debug/InAppDebugConsole';
+import { translations } from '../i18n/translations';
+import { solarColors } from '../theme/colors';
 import { DashboardHeader } from './DashboardHeader';
 import { EnergyChartCard } from './EnergyChartCard';
 import { FullScreenChart } from './FullScreenChart';
@@ -13,10 +17,6 @@ import { PhoneFrame } from './PhoneFrame';
 import { PlantSummaryCard } from './PlantSummaryCard';
 import { ProfileMenu } from './ProfileMenu';
 import { SystemHealthCard } from './SystemHealthCard';
-import { isInAppDebugConsoleEnabled } from '../config/env';
-import { KpiOption, LanguageCode, MetricRange } from '../data/monitoring';
-import { InAppDebugConsole } from '../debug/InAppDebugConsole';
-import { translations } from '../i18n/translations';
 
 export function DashboardScreen() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -29,26 +29,6 @@ export function DashboardScreen() {
   const t = translations[selectedLanguage];
   const isDebugConsoleEnabled = isInAppDebugConsoleEnabled();
 
-  const closeDashboardOverlays = useCallback(() => {
-    setIsMenuOpen(false);
-    setIsKpiSheetOpen(false);
-    setIsLanguageSheetOpen(false);
-    setIsFullScreenChartOpen(false);
-  }, []);
-
-  const openFullScreenChart = useCallback(() => {
-    setIsMenuOpen(false);
-    setIsKpiSheetOpen(false);
-    setIsLanguageSheetOpen(false);
-    setIsFullScreenChartOpen(true);
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      closeDashboardOverlays();
-    }, [closeDashboardOverlays])
-  );
-
   useEffect(() => {
     if (!isFullScreenChartOpen && Platform.OS !== 'web') {
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => undefined);
@@ -56,7 +36,7 @@ export function DashboardScreen() {
   }, [isFullScreenChartOpen]);
 
   return (
-    <PhoneFrame>
+    <PhoneFrame variant="dark">
       <View style={styles.container}>
         <DashboardHeader
           selectedLanguage={selectedLanguage}
@@ -69,7 +49,7 @@ export function DashboardScreen() {
             selectedKpi={selectedKpi}
             activeRange={activeRange}
             onKpiPress={() => setIsKpiSheetOpen(true)}
-            onFullScreenPress={openFullScreenChart}
+            onFullScreenPress={() => setIsFullScreenChartOpen(true)}
             onRangeChange={setActiveRange}
             t={t}
           />
@@ -114,6 +94,7 @@ export function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: solarColors.background,
   },
   content: {
     padding: 12,
