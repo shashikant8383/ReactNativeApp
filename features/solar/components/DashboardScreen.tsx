@@ -6,7 +6,6 @@ import { isInAppDebugConsoleEnabled } from '../config/env';
 import { KpiOption, LanguageCode, MetricRange } from '../data/monitoring';
 import { InAppDebugConsole } from '../debug/InAppDebugConsole';
 import { translations } from '../i18n/translations';
-import { solarColors } from '../theme/colors';
 import { DashboardHeader } from './DashboardHeader';
 import { EnergyChartCard } from './EnergyChartCard';
 import { FullScreenChart } from './FullScreenChart';
@@ -36,7 +35,7 @@ export function DashboardScreen() {
   }, [isFullScreenChartOpen]);
 
   return (
-    <PhoneFrame variant="dark">
+    <PhoneFrame>
       <View style={styles.container}>
         <DashboardHeader
           selectedLanguage={selectedLanguage}
@@ -94,7 +93,7 @@ export function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: solarColors.background,
+    //backgroundColor: solarColors.background,
   },
   content: {
     padding: 12,
