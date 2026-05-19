@@ -5,6 +5,7 @@ import {
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -95,51 +96,65 @@ export function LoginScreen() {
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.keyboard}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={0}
+      style={styles.keyboard}
+    >
       <PhoneFrame variant="dark">
-        <ImageBackground
-          source={{ uri: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=900&q=80' }}
-          imageStyle={styles.heroImage}
-          style={styles.hero}
+        <ScrollView
+          bounces={false}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <View style={styles.heroTint} />
-        </ImageBackground>
+          <ImageBackground
+            source={{ uri: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=900&q=80' }}
+            imageStyle={styles.heroImage}
+            style={styles.hero}
+          >
+            <View style={styles.heroTint} />
+          </ImageBackground>
 
-        <View style={styles.formPanel}>
-          <BrandLogo size="large" />
-          <Text style={styles.subtitle}>SOLAR PLANT MONITORING</Text>
+          <View style={styles.formPanel}>
+            <BrandLogo size="large" />
+            <Text style={styles.subtitle}>SOLAR PLANT MONITORING</Text>
 
-          <Text style={styles.label}>USERNAME / EMAIL</Text>
-          <TextInput
-            autoCapitalize="none"
-            keyboardType="email-address"
-            placeholder="Enter your username"
-            placeholderTextColor="#71809b"
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-          />
+            <Text style={styles.label}>USERNAME / EMAIL</Text>
+            <TextInput
+              autoCapitalize="none"
+              keyboardType="email-address"
+              placeholder="Enter your username"
+              placeholderTextColor="#71809b"
+              returnKeyType="next"
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+            />
 
-          <Text style={styles.label}>PASSWORD</Text>
-          <TextInput
-            placeholder="Enter your password"
-            placeholderTextColor="#71809b"
-            secureTextEntry={true}
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-          />
+            <Text style={styles.label}>PASSWORD</Text>
+            <TextInput
+              placeholder="Enter your password"
+              placeholderTextColor="#71809b"
+              returnKeyType="done"
+              secureTextEntry={true}
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              onSubmitEditing={handleLogin}
+            />
 
-          <TouchableOpacity disabled={isLoggingIn} style={[styles.button, isLoggingIn && styles.buttonDisabled]} onPress={handleLogin}>
-            <Text style={styles.buttonText}>{isLoggingIn ? 'LOGGING IN...' : 'LOG IN'}</Text>
-          </TouchableOpacity>
+            <TouchableOpacity disabled={isLoggingIn} style={[styles.button, isLoggingIn && styles.buttonDisabled]} onPress={handleLogin}>
+              <Text style={styles.buttonText}>{isLoggingIn ? 'LOGGING IN...' : 'LOG IN'}</Text>
+            </TouchableOpacity>
 
-          {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+            {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
-          <TouchableOpacity>
-            <Text style={styles.forgot}>Forgot password?</Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity>
+              <Text style={styles.forgot}>Forgot password?</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
         <InAppDebugConsole enabled={isDebugConsoleEnabled} />
       </PhoneFrame>
     </KeyboardAvoidingView>
@@ -150,8 +165,13 @@ const styles = StyleSheet.create({
   keyboard: {
     flex: 1,
   },
+  scrollContent: {
+    flexGrow: 1,
+    backgroundColor: solarColors.navy,
+    paddingBottom: 36,
+  },
   hero: {
-    height: 250,
+    height: 235,
     justifyContent: 'flex-end',
   },
   heroImage: {
@@ -162,10 +182,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(141, 28, 35, 0.58)',
   },
   formPanel: {
-    flex: 1,
     backgroundColor: solarColors.navy,
     paddingHorizontal: 28,
     paddingTop: 30,
+    paddingBottom: 34,
   },
   subtitle: {
     color: '#91a2be',
