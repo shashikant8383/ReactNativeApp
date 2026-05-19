@@ -22,6 +22,10 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.HelloApp"
     },
+    "androidNavigationBar": {
+      "backgroundColor": "#ffffff",
+      "barStyle": "dark-content"
+    },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"

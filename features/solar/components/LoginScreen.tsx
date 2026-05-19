@@ -109,68 +109,76 @@ export function LoginScreen() {
     );
   }
 
-  return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.keyboard}>
-      <PhoneFrame variant="dark">
-        <ScrollView
-          ref={scrollViewRef}
-          bounces={false}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+  const content = (
+    <PhoneFrame variant="dark">
+      <ScrollView
+        ref={scrollViewRef}
+        bounces={false}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <ImageBackground
+          source={{ uri: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=900&q=80' }}
+          imageStyle={styles.heroImage}
+          style={[styles.hero, isKeyboardOpen && styles.heroKeyboardOpen]}
         >
-          <ImageBackground
-            source={{ uri: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=900&q=80' }}
-            imageStyle={styles.heroImage}
-            style={[styles.hero, isKeyboardOpen && styles.heroKeyboardOpen]}
-          >
-            <View style={styles.heroTint} />
-          </ImageBackground>
+          <View style={styles.heroTint} />
+        </ImageBackground>
 
-          <View style={styles.formPanel}>
-            <BrandLogo size="large" />
-            <Text style={styles.subtitle}>SOLAR PLANT MONITORING</Text>
+        <View style={styles.formPanel}>
+          <BrandLogo size="large" />
+          <Text style={styles.subtitle}>SOLAR PLANT MONITORING</Text>
 
-            <Text style={styles.label}>USERNAME / EMAIL</Text>
-            <TextInput
-              autoCapitalize="none"
-              keyboardType="email-address"
-              placeholder="Enter your username"
-              placeholderTextColor="#71809b"
-              returnKeyType="next"
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-            />
+          <Text style={styles.label}>USERNAME / EMAIL</Text>
+          <TextInput
+            autoCapitalize="none"
+            keyboardType="email-address"
+            placeholder="Enter your username"
+            placeholderTextColor="#71809b"
+            returnKeyType="next"
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+          />
 
-            <Text style={styles.label}>PASSWORD</Text>
-            <TextInput
-              placeholder="Enter your password"
-              placeholderTextColor="#71809b"
-              returnKeyType="done"
-              secureTextEntry={true}
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              onFocus={() => setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 120)}
-              onSubmitEditing={handleLogin}
-            />
+          <Text style={styles.label}>PASSWORD</Text>
+          <TextInput
+            placeholder="Enter your password"
+            placeholderTextColor="#71809b"
+            returnKeyType="done"
+            secureTextEntry={true}
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            onFocus={() => setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 120)}
+            onSubmitEditing={handleLogin}
+          />
 
-            <TouchableOpacity disabled={isLoggingIn} style={[styles.button, isLoggingIn && styles.buttonDisabled]} onPress={handleLogin}>
-              <Text style={styles.buttonText}>{isLoggingIn ? 'LOGGING IN...' : 'LOG IN'}</Text>
-            </TouchableOpacity>
+          <TouchableOpacity disabled={isLoggingIn} style={[styles.button, isLoggingIn && styles.buttonDisabled]} onPress={handleLogin}>
+            <Text style={styles.buttonText}>{isLoggingIn ? 'LOGGING IN...' : 'LOG IN'}</Text>
+          </TouchableOpacity>
 
-            {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+          {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
-            <TouchableOpacity>
-              <Text style={styles.forgot}>Forgot password?</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-        <InAppDebugConsole enabled={isDebugConsoleEnabled} />
-      </PhoneFrame>
-    </KeyboardAvoidingView>
+          <TouchableOpacity>
+            <Text style={styles.forgot}>Forgot password?</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+      <InAppDebugConsole enabled={isDebugConsoleEnabled} />
+    </PhoneFrame>
   );
+
+  if (Platform.OS === 'ios') {
+    return (
+      <KeyboardAvoidingView behavior="padding" style={styles.keyboard}>
+        {content}
+      </KeyboardAvoidingView>
+    );
+  }
+
+  return <View style={styles.keyboard}>{content}</View>;
 }
 
 const styles = StyleSheet.create({

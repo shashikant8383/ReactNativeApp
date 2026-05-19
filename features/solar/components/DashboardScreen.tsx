@@ -1,5 +1,6 @@
 import * as ScreenOrientation from 'expo-screen-orientation';
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 
 import { isInAppDebugConsoleEnabled } from '../config/env';
@@ -28,6 +29,47 @@ export function DashboardScreen() {
   const t = translations[selectedLanguage];
   const isDebugConsoleEnabled = isInAppDebugConsoleEnabled();
 
+  const closeDashboardOverlays = useCallback(() => {
+    setIsMenuOpen(false);
+    setIsKpiSheetOpen(false);
+    setIsLanguageSheetOpen(false);
+    setIsFullScreenChartOpen(false);
+  }, []);
+
+  const openKpiSheet = useCallback(() => {
+    setIsMenuOpen(false);
+    setIsLanguageSheetOpen(false);
+    setIsFullScreenChartOpen(false);
+    setIsKpiSheetOpen(true);
+  }, []);
+
+  const openLanguageSheet = useCallback(() => {
+    setIsMenuOpen(false);
+    setIsKpiSheetOpen(false);
+    setIsFullScreenChartOpen(false);
+    setIsLanguageSheetOpen(true);
+  }, []);
+
+  const openProfileMenu = useCallback(() => {
+    setIsKpiSheetOpen(false);
+    setIsLanguageSheetOpen(false);
+    setIsFullScreenChartOpen(false);
+    setIsMenuOpen(true);
+  }, []);
+
+  const openFullScreenChart = useCallback(() => {
+    setIsMenuOpen(false);
+    setIsKpiSheetOpen(false);
+    setIsLanguageSheetOpen(false);
+    setIsFullScreenChartOpen(true);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      closeDashboardOverlays();
+    }, [closeDashboardOverlays])
+  );
+
   useEffect(() => {
     if (!isFullScreenChartOpen && Platform.OS !== 'web') {
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => undefined);
@@ -39,16 +81,16 @@ export function DashboardScreen() {
       <View style={styles.container}>
         <DashboardHeader
           selectedLanguage={selectedLanguage}
-          onLanguagePress={() => setIsLanguageSheetOpen(true)}
-          onMenuPress={() => setIsMenuOpen(true)}
+          onLanguagePress={openLanguageSheet}
+          onMenuPress={openProfileMenu}
         />
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <PlantSummaryCard t={t} />
           <EnergyChartCard
             selectedKpi={selectedKpi}
             activeRange={activeRange}
-            onKpiPress={() => setIsKpiSheetOpen(true)}
-            onFullScreenPress={() => setIsFullScreenChartOpen(true)}
+            onKpiPress={openKpiSheet}
+            onFullScreenPress={openFullScreenChart}
             onRangeChange={setActiveRange}
             t={t}
           />
