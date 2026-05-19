@@ -1,4 +1,6 @@
 import { ApiError } from './apiError';
+import { addApiDebugLog } from '../debug/debugLogger';
+import { sanitizeForDebug } from '../debug/sanitize';
 
 type JsonObject = Record<string, unknown>;
 
@@ -26,22 +28,53 @@ async function parseJson<T>(response: Response): Promise<T | undefined> {
 }
 
 export async function apiRequest<T>(url: string, options: ApiRequestOptions = {}) {
-  const response = await fetch(url, {
-    method: options.method ?? 'GET',
-    headers: {
+  const method = options.method ?? 'GET';
+  const headers = {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       ...options.headers,
-    },
-    body: options.body ? JSON.stringify(options.body) : undefined,
-  });
+  };
+  const startedAt = Date.now();
 
-  const data = await parseJson<T & FirebaseErrorBody>(response);
+  try {
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: options.body ? JSON.stringify(options.body) : undefined,
+    });
 
-  if (!response.ok) {
-    const code = data?.error?.message;
-    throw new ApiError(code || `Request failed with status ${response.status}`, response.status, code);
+    const data = await parseJson<T & FirebaseErrorBody>(response);
+
+    addApiDebugLog({
+      durationMs: Date.now() - startedAt,
+      method,
+      requestBody: sanitizeForDebug(options.body),
+      requestHeaders: sanitizeForDebug(headers) as Record<string, string>,
+      responseBody: sanitizeForDebug(data),
+      status: response.status,
+      url,
+    });
+
+    if (!response.ok) {
+      const code = data?.error?.message;
+      throw new ApiError(code || `Request failed with status ${response.status}`, response.status, code);
+    }
+
+    return data as T;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    addApiDebugLog({
+      durationMs: Date.now() - startedAt,
+      error: sanitizeForDebug(error instanceof Error ? { message: error.message, name: error.name } : error),
+      method,
+      requestBody: sanitizeForDebug(options.body),
+      requestHeaders: sanitizeForDebug(headers) as Record<string, string>,
+      url,
+    });
+
+    throw error;
   }
-
-  return data as T;
 }

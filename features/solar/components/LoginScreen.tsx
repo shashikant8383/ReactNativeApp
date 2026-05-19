@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import React, { useEffect, useState } from 'react';
 import {
   ImageBackground,
@@ -15,6 +16,8 @@ import { BrandLogo } from './BrandLogo';
 import { PhoneFrame } from './PhoneFrame';
 import { getUserFriendlyAuthError } from '../api/apiError';
 import { hasLoginSession, saveLoginSession } from '../auth/session';
+import { isInAppDebugConsoleEnabled } from '../config/env';
+import { InAppDebugConsole } from '../debug/InAppDebugConsole';
 import { loginWithPassword } from '../services/authApi';
 import { solarColors } from '../theme/colors';
 
@@ -23,6 +26,13 @@ export function LoginScreen() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [password, setPassword] = useState('');
+  const isDebugConsoleEnabled = isInAppDebugConsoleEnabled();
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => undefined);
+    }
+  }, []);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
 
   useEffect(() => {
@@ -77,7 +87,11 @@ export function LoginScreen() {
   }
 
   if (isCheckingSession) {
-    return <PhoneFrame variant="dark" />;
+    return (
+      <PhoneFrame variant="dark">
+        <InAppDebugConsole enabled={isDebugConsoleEnabled} />
+      </PhoneFrame>
+    );
   }
 
   return (
@@ -126,6 +140,7 @@ export function LoginScreen() {
             <Text style={styles.forgot}>Forgot password?</Text>
           </TouchableOpacity>
         </View>
+        <InAppDebugConsole enabled={isDebugConsoleEnabled} />
       </PhoneFrame>
     </KeyboardAvoidingView>
   );

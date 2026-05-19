@@ -7,10 +7,12 @@ type ExpoExtraConfig = {
   firebaseApiKey?: string;
   firebaseAuthBaseUrl?: string;
   firebaseClientType?: string;
+  enableInAppDebugConsole?: string;
 };
 
 type RuntimeConfig = {
   appEnv: AppEnv;
+  enableInAppDebugConsole: boolean;
   firebaseApiKey: string;
   firebaseAuthBaseUrl: string;
   firebaseClientType: string;
@@ -18,6 +20,11 @@ type RuntimeConfig = {
 
 function getExpoExtra() {
   return (Constants.expoConfig?.extra ?? {}) as ExpoExtraConfig;
+}
+
+export function isInAppDebugConsoleEnabled() {
+  const extra = getExpoExtra();
+  return extra.enableInAppDebugConsole === 'true';
 }
 
 export function getRuntimeConfig(): RuntimeConfig {
@@ -32,6 +39,7 @@ export function getRuntimeConfig(): RuntimeConfig {
 
   return {
     appEnv: extra.appEnv ?? 'dev',
+    enableInAppDebugConsole: isInAppDebugConsoleEnabled(),
     firebaseApiKey,
     firebaseAuthBaseUrl: extra.firebaseAuthBaseUrl ?? 'https://identitytoolkit.googleapis.com/v1',
     firebaseClientType: extra.firebaseClientType ?? 'CLIENT_TYPE_WEB',

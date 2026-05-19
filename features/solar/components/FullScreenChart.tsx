@@ -1,5 +1,7 @@
-import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
+import { Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 import { GroupedBarChart } from './GroupedBarChart';
 import { KpiOption, metricRanges, MetricRange } from '../data/monitoring';
@@ -16,10 +18,6 @@ type FullScreenChartProps = {
   onClose: () => void;
 };
 
-const screen = Dimensions.get('window');
-const chartWidth = Math.max(300, screen.width - 34);
-const chartHeight = Math.max(470, screen.height - 270);
-
 export function FullScreenChart({
   isVisible,
   selectedKpi,
@@ -28,9 +26,24 @@ export function FullScreenChart({
   t,
   onClose,
 }: FullScreenChartProps) {
+  const { width, height } = useWindowDimensions();
   const energyChartData = useLiveEnergyData(activeRange, [t.plantMeasurement, t.digitalTwin]);
   const isLineChart = activeRange === 'Hour';
   const maxValue = activeRange === 'Day' ? 12 : 140;
+  const chartWidth = Math.max(320, width - 34);
+  const chartHeight = Math.max(260, height - 190);
+
+  useEffect(() => {
+    if (!isVisible || Platform.OS === 'web') {
+      return undefined;
+    }
+
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE).catch(() => undefined);
+
+    return () => {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => undefined);
+    };
+  }, [isVisible]);
 
   if (!isVisible) {
     return null;

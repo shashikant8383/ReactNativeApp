@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 import { DashboardHeader } from './DashboardHeader';
 import { EnergyChartCard } from './EnergyChartCard';
@@ -11,7 +12,9 @@ import { PhoneFrame } from './PhoneFrame';
 import { PlantSummaryCard } from './PlantSummaryCard';
 import { ProfileMenu } from './ProfileMenu';
 import { SystemHealthCard } from './SystemHealthCard';
+import { isInAppDebugConsoleEnabled } from '../config/env';
 import { KpiOption, LanguageCode, MetricRange } from '../data/monitoring';
+import { InAppDebugConsole } from '../debug/InAppDebugConsole';
 import { translations } from '../i18n/translations';
 
 export function DashboardScreen() {
@@ -23,6 +26,13 @@ export function DashboardScreen() {
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode>('EN');
   const [activeRange, setActiveRange] = useState<MetricRange>('Hour');
   const t = translations[selectedLanguage];
+  const isDebugConsoleEnabled = isInAppDebugConsoleEnabled();
+
+  useEffect(() => {
+    if (!isFullScreenChartOpen && Platform.OS !== 'web') {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => undefined);
+    }
+  }, [isFullScreenChartOpen]);
 
   return (
     <PhoneFrame>
@@ -74,6 +84,7 @@ export function DashboardScreen() {
           t={t}
           onClose={() => setIsFullScreenChartOpen(false)}
         />
+        <InAppDebugConsole enabled={isDebugConsoleEnabled && !isFullScreenChartOpen} />
       </View>
     </PhoneFrame>
   );

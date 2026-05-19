@@ -64,6 +64,8 @@ module.exports = () => {
       firebaseAuthBaseUrl:
         envValues.EXPO_PUBLIC_FIREBASE_AUTH_BASE_URL || 'https://identitytoolkit.googleapis.com/v1',
       firebaseClientType: envValues.EXPO_PUBLIC_FIREBASE_CLIENT_TYPE || 'CLIENT_TYPE_WEB',
+      enableInAppDebugConsole:
+        envValues.EXPO_PUBLIC_ENABLE_IN_APP_DEBUG_CONSOLE ?? (appEnv === 'prod' ? 'false' : 'true'),
     },
   };
 };
