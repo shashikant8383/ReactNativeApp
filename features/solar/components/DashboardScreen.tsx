@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 
@@ -28,6 +29,26 @@ export function DashboardScreen() {
   const t = translations[selectedLanguage];
   const isDebugConsoleEnabled = isInAppDebugConsoleEnabled();
 
+  const closeDashboardOverlays = useCallback(() => {
+    setIsMenuOpen(false);
+    setIsKpiSheetOpen(false);
+    setIsLanguageSheetOpen(false);
+    setIsFullScreenChartOpen(false);
+  }, []);
+
+  const openFullScreenChart = useCallback(() => {
+    setIsMenuOpen(false);
+    setIsKpiSheetOpen(false);
+    setIsLanguageSheetOpen(false);
+    setIsFullScreenChartOpen(true);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      closeDashboardOverlays();
+    }, [closeDashboardOverlays])
+  );
+
   useEffect(() => {
     if (!isFullScreenChartOpen && Platform.OS !== 'web') {
       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => undefined);
@@ -48,7 +69,7 @@ export function DashboardScreen() {
             selectedKpi={selectedKpi}
             activeRange={activeRange}
             onKpiPress={() => setIsKpiSheetOpen(true)}
-            onFullScreenPress={() => setIsFullScreenChartOpen(true)}
+            onFullScreenPress={openFullScreenChart}
             onRangeChange={setActiveRange}
             t={t}
           />
