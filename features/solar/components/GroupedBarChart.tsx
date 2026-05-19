@@ -16,9 +16,9 @@ type GroupedBarChartProps = {
 
 export function GroupedBarChart({ labels, plant, twin, width, height, maxValue, dark = false }: GroupedBarChartProps) {
   const paddingLeft = 36;
-  const paddingRight = 6;
+  const paddingRight = dark ? 14 : 6;
   const paddingTop = 14;
-  const paddingBottom = 28;
+  const paddingBottom = dark ? 44 : 28;
   const plotWidth = width - paddingLeft - paddingRight;
   const plotHeight = height - paddingTop - paddingBottom;
   const groupCount = plant.length;
@@ -28,6 +28,7 @@ export function GroupedBarChart({ labels, plant, twin, width, height, maxValue, 
   const labelColor = dark ? '#8198c1' : '#9a9a9a';
   const ticks = maxValue <= 12 ? [0, 2, 4, 6, 8, 10, 12] : [0, 20, 40, 60, 80, 100, 120, 140];
   const shownLabelIndexes = labels.map((_, index) => Math.round((index * (groupCount - 1)) / Math.max(1, labels.length - 1)));
+  const xAxisLabelY = height - (dark ? 18 : 5);
 
   function y(value: number) {
     return paddingTop + plotHeight - (value / maxValue) * plotHeight;
@@ -94,7 +95,7 @@ export function GroupedBarChart({ labels, plant, twin, width, height, maxValue, 
               fontWeight="800"
               textAnchor="middle"
               x={x}
-              y={height - 5}
+              y={xAxisLabelY}
             >
               {label}
             </SvgText>

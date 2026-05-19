@@ -1,5 +1,6 @@
 import React, { PropsWithChildren } from 'react';
-import { Platform, SafeAreaView, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { solarColors } from '../theme/colors';
 
@@ -11,7 +12,11 @@ export function PhoneFrame({ children, variant = 'light' }: PhoneFrameProps) {
   const contentStyle = [styles.appSurface, variant === 'dark' && styles.darkSurface];
 
   if (Platform.OS !== 'web') {
-    return <SafeAreaView style={contentStyle}>{children}</SafeAreaView>;
+    return (
+      <SafeAreaView edges={['top', 'right', 'bottom', 'left']} style={contentStyle}>
+        {children}
+      </SafeAreaView>
+    );
   }
 
   return (

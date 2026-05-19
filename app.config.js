@@ -57,6 +57,10 @@ module.exports = () => {
 
   return {
     ...appJson.expo,
+    android: {
+      ...appJson.expo.android,
+      edgeToEdgeEnabled: false,
+    },
     extra: {
       ...appJson.expo.extra,
       appEnv,

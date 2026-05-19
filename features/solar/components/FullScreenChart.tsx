@@ -1,13 +1,14 @@
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { useEffect } from 'react';
 import { Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
-import * as ScreenOrientation from 'expo-screen-orientation';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GroupedBarChart } from './GroupedBarChart';
-import { KpiOption, metricRanges, MetricRange } from '../data/monitoring';
+import { KpiOption, MetricRange, metricRanges } from '../data/monitoring';
 import { useLiveEnergyData } from '../hooks/useLiveEnergyData';
 import { translations } from '../i18n/translations';
 import { solarColors } from '../theme/colors';
+import { GroupedBarChart } from './GroupedBarChart';
 
 type FullScreenChartProps = {
   isVisible: boolean;
@@ -27,11 +28,18 @@ export function FullScreenChart({
   onClose,
 }: FullScreenChartProps) {
   const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const energyChartData = useLiveEnergyData(activeRange, [t.plantMeasurement, t.digitalTwin]);
   const isLineChart = activeRange === 'Hour';
   const maxValue = activeRange === 'Day' ? 12 : 140;
-  const chartWidth = Math.max(320, width - 34);
-  const chartHeight = Math.max(260, height - 190);
+  const horizontalPadding = 16;
+  const verticalPadding = 12;
+  const availableWidth = width - insets.left - insets.right - horizontalPadding * 2;
+  const availableHeight = height - insets.top - insets.bottom - verticalPadding * 2;
+  const chartWidth = Math.max(320, availableWidth);
+  const chartHeight = isLineChart
+    ? Math.max(160, Math.min(230, availableHeight - 156))
+    : Math.max(150, Math.min(205, availableHeight - 154));
 
   useEffect(() => {
     if (!isVisible || Platform.OS === 'web') {
@@ -50,7 +58,17 @@ export function FullScreenChart({
   }
 
   return (
-    <View style={styles.overlay}>
+    <View
+      style={[
+        styles.overlay,
+        {
+          paddingBottom: Math.max(verticalPadding, insets.bottom + 6),
+          paddingLeft: Math.max(horizontalPadding, insets.left + horizontalPadding),
+          paddingRight: Math.max(horizontalPadding, insets.right + horizontalPadding),
+          paddingTop: Math.max(verticalPadding, insets.top + 8),
+        },
+      ]}
+    >
       <View style={styles.header}>
         <Text style={styles.title}>{t.kpis[selectedKpi]}</Text>
         <Pressable onPress={onClose} style={styles.closeButton}>
@@ -141,46 +159,43 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: solarColors.navy,
-    paddingHorizontal: 18,
-    paddingTop: 36,
-    paddingBottom: 22,
     zIndex: 30,
   },
   header: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   title: {
     color: '#ffffff',
-    fontSize: 19,
+    fontSize: 17,
     fontWeight: '900',
   },
   closeButton: {
     alignItems: 'center',
     backgroundColor: '#213862',
-    borderRadius: 10,
-    height: 34,
+    borderRadius: 9,
+    height: 31,
     justifyContent: 'center',
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
   },
   closeText: {
     color: '#dbe6fb',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800',
   },
   segmentedControl: {
     backgroundColor: '#22375d',
-    borderRadius: 10,
+    borderRadius: 9,
     flexDirection: 'row',
-    height: 44,
-    marginBottom: 14,
-    padding: 4,
+    height: 34,
+    marginBottom: 8,
+    padding: 3,
   },
   segment: {
     alignItems: 'center',
-    borderRadius: 8,
+    borderRadius: 7,
     flex: 1,
     justifyContent: 'center',
   },
@@ -189,7 +204,7 @@ const styles = StyleSheet.create({
   },
   segmentText: {
     color: '#8ba0c7',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '800',
   },
   segmentTextActive: {
@@ -198,8 +213,10 @@ const styles = StyleSheet.create({
   legendRow: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 18,
-    marginBottom: 8,
+    flexWrap: 'wrap',
+    gap: 14,
+    minHeight: 24,
+    marginBottom: 12,
   },
   legendItem: {
     alignItems: 'center',
@@ -219,23 +236,24 @@ const styles = StyleSheet.create({
   },
   legendText: {
     color: '#9fb0cc',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '800',
   },
   chartWrap: {
     alignItems: 'center',
-    flex: 1,
+    flexShrink: 1,
     justifyContent: 'center',
+    marginTop: 2,
   },
   chart: {
     borderRadius: 8,
-    marginLeft: -12,
   },
   period: {
     alignSelf: 'flex-end',
     color: '#8098c1',
     fontSize: 12,
     fontWeight: '800',
-    marginTop: 4,
+    lineHeight: 16,
+    marginTop: 8,
   },
 });
