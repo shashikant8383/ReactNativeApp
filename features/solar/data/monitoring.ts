@@ -50,7 +50,7 @@ export const baseEnergyChartData = {
     twin: [10, 9, 12, 8, 9, 11, 10, 9, 9, 12, 8, 12, 11, 9, 10, 3, 7, 10, 9, 8, 3, 9],
   },
   Month: {
-    labels: ['Jan', 'Mar', 'May', 'Jul', 'Sep', 'Nov'],
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     plant: [45, 52, 78, 95, 110, 130, 120, 115, 98, 70, 50, 38],
     twin: [50, 55, 80, 100, 115, 135, 125, 120, 100, 75, 52, 40],
   },

@@ -15,10 +15,11 @@ type GroupedBarChartProps = {
 };
 
 export function GroupedBarChart({ labels, plant, twin, width, height, maxValue, dark = false }: GroupedBarChartProps) {
+  const hasDenseLabels = labels.length >= 12;
   const paddingLeft = 36;
   const paddingRight = dark ? 14 : 6;
   const paddingTop = 14;
-  const paddingBottom = dark ? 44 : 28;
+  const paddingBottom = dark ? 44 : hasDenseLabels ? 32 : 28;
   const plotWidth = width - paddingLeft - paddingRight;
   const plotHeight = height - paddingTop - paddingBottom;
   const groupCount = plant.length;
@@ -29,6 +30,8 @@ export function GroupedBarChart({ labels, plant, twin, width, height, maxValue, 
   const ticks = maxValue <= 12 ? [0, 2, 4, 6, 8, 10, 12] : [0, 20, 40, 60, 80, 100, 120, 140];
   const shownLabelIndexes = labels.map((_, index) => Math.round((index * (groupCount - 1)) / Math.max(1, labels.length - 1)));
   const xAxisLabelY = height - (dark ? 18 : 5);
+  const xAxisLabelFontSize = hasDenseLabels ? (dark ? 9 : 7) : dark ? 11 : 9;
+  const yAxisLabelFontSize = dark ? 11 : 9;
 
   function y(value: number) {
     return paddingTop + plotHeight - (value / maxValue) * plotHeight;
@@ -44,7 +47,7 @@ export function GroupedBarChart({ labels, plant, twin, width, height, maxValue, 
               <Line x1={paddingLeft} x2={width - paddingRight} y1={tickY} y2={tickY} stroke={gridColor} strokeWidth={1} />
               <SvgText
                 fill={labelColor}
-                fontSize={dark ? 11 : 9}
+                fontSize={yAxisLabelFontSize}
                 fontWeight="700"
                 textAnchor="end"
                 x={paddingLeft - 7}
@@ -91,7 +94,7 @@ export function GroupedBarChart({ labels, plant, twin, width, height, maxValue, 
             <SvgText
               key={`${label}-${index}`}
               fill={labelColor}
-              fontSize={dark ? 11 : 9}
+              fontSize={xAxisLabelFontSize}
               fontWeight="800"
               textAnchor="middle"
               x={x}
@@ -104,7 +107,7 @@ export function GroupedBarChart({ labels, plant, twin, width, height, maxValue, 
 
         <SvgText
           fill={labelColor}
-          fontSize={dark ? 11 : 9}
+          fontSize={yAxisLabelFontSize}
           fontWeight="800"
           rotation="-90"
           textAnchor="middle"
